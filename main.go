@@ -8,7 +8,33 @@ import (
 // Define a home handler function which writes a byte slice containing
 // "Hello from Snippetbox" as the response body.
 func home (w http.ResponseWriter, r *http.Request) {
+	// Check if the current request URL path exactly matches "/". If it doesn't, use
+	// the http.NotFound() function to send a 404 response to the client.
+	// Importantly, we then return from the handler. If we don't return the handler
+	// would keep executing and also write the "Hello from SnippetBox" message.
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	w.Write([]byte("Hello, world."))
+}
+
+// Show snippet handler
+func showSnippet (w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Showing all snippets."))
+}
+
+// Create new snippet handler
+func createSnippet (w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		// w.WriteHeader(405)
+		// w.Write([]byte("Method not allowed."))
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Write([]byte("Create new snippet."))
 }
 
 func main () {
@@ -18,6 +44,9 @@ func main () {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", home)
+
+	mux.HandleFunc("/snippets", showSnippet)
+	mux.HandleFunc("/snippets/create", createSnippet)
 
 	// Use the http.ListenAndServe() function to start a new web server. We pass in
 	// two parameters: the TCP network address to listen on (in this case ":4000")
