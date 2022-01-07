@@ -147,4 +147,30 @@ suppress the Date header, for example, you need to write:
 
 `w.Header()["Date"] = nil`
 
-## URL Query Strings
+## HTML Templating and Inheritance
+
+### The Block Action
+
+In the code above we’ve used the {{template}} action to invoke one template from
+another. But Go also provides a {{block}}...{{end}} action which you can use instead.
+This acts like the {{template}} action, except it allows you to specify some default content
+if the template being invoked doesn’t exist in the current template set.
+In the context of a web application, this is useful when you want to provide some default
+content (such as a sidebar) which individual pages can override on a case-by-case basis if
+they need to.
+Syntactically you use it like this:
+
+```go
+{{define "base"}}
+<h1>An example template</h1>
+{{block "sidebar" .}}
+<p>My default sidebar content</p>
+{{end}}
+{{end}}
+```
+
+But — if you want — you don’t need to include any default content between the {{block}}and {{end}} actions. In that case, the invoked template acts like it’s ‘optional’. If the
+template exists in the template set, then it will be rendered. But if it doesn’t, then nothing
+will be displayed.
+
+### Serving static files
