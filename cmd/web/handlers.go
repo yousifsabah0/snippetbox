@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -13,7 +15,20 @@ func home (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Hello, World."))
+	ts, err := template.ParseFiles("./ui/html/home.page.tmpl")
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal server error.", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.Execute(w, nil)
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal server error.", http.StatusInternalServerError)
+	}
+
+	// w.Write([]byte("Hello, World."))
 }
 
 // Handler to show specific snippet.
