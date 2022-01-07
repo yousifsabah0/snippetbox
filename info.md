@@ -245,3 +245,7 @@ get a 200 OK response with no body. If you want to do this for all directories u
 A more complicated (but arguably better) solution is to create a custom implementation of
 http.FileSystem , and have it return an os.ErrNotExist error for any directories. A full
 explanation and sample code can be found in this blog post.
+
+### Clousers for Dependency Injection
+
+https://gist.github.com/alexedwards/5cd712192b4831058b21
