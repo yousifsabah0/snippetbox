@@ -15,7 +15,7 @@ func main () {
 
 	// Handle static files
 	fileserver := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", fileserver)
+	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
 	err := http.ListenAndServe(":8080", mux)
 	log.Fatal(err)
