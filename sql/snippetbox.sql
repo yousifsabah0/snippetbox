@@ -1,5 +1,5 @@
 -- Create database
-CREATE DATABASE IF NOT EXISTS snippetbox SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS snippetbox;
 
 -- Switch to 'snippetbox' database
 USE snippetbox;
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS snippet (
   content TEXT NOT NULL,
   expires DATETIME NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON ON UPDATE CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 
