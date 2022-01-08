@@ -3,8 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-
-	// "html/template"
 	"net/http"
 	"strconv"
 
@@ -23,10 +21,16 @@ func (app *Application) home (w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	app.render(w, r, "home.page.tmpl", &TemplateData{
+		Snippets: snippets,
+	})
 	
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%v\n", snippet)
-	}
+	// for _, snippet := range snippets {
+	// 	fmt.Fprintf(w, "%v\n", snippet)
+	// }
+
+	// data := &TemplateData{Snippets: snippets}
 
 	// files := []string{
 	// 	"./ui/html/home.page.tmpl",
@@ -43,7 +47,7 @@ func (app *Application) home (w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	// err = ts.Execute(w, nil)
+	// err = ts.Execute(w, data)
 	// if err != nil {
 	// 	// log.Fatal(err.Error())
 	// 	// app.errorLogger.Println(err.Error())
@@ -73,7 +77,30 @@ func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", snippet)
+	app.render(w, r, "show.page.tmpl", &TemplateData{
+		Snippet: snippet,
+	})
+
+	// data := &TemplateData{Snippet: snippet}
+
+	// files := []string{
+	// 	"./ui/html/show.page.tmpl",
+	// 	"./ui/html/base.layout.tmpl",	
+	// 	"./ui/html/footer.partial.tmpl",
+	// }
+
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+
+	// err = ts.Execute(w, data)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+	// fmt.Fprintf(w, "%v", snippet)
 }
 
 // Handler to create new snippets.

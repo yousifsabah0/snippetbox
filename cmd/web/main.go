@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,7 @@ type Application struct {
 	errorLogger *log.Logger
 	infoLogger *log.Logger
 	snippets *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main () {
@@ -35,13 +37,18 @@ func main () {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache("./ui/html")
+	if err != nil {
+		errorLogger.Fatal(err)
+	}
+
 	// Initialize new instance of Application struct
 	app := &Application{
 		errorLogger: errorLogger,
 		infoLogger: infoLogger,
 		snippets: &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
-
 
 	// Initialize new http.Server struct 
 	srv := &http.Server{

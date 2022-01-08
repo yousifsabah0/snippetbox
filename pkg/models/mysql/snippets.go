@@ -29,7 +29,7 @@ func (model *SnippetModel) Create (title, content, expires string) (int, error) 
 }
 
 func (model *SnippetModel) FindOne (id int) (*models.Snippet, error) {
-	stmt := `SELECT title, content, expires, created_at FROM snippet WHERE id = ? AND expires > UTC_TIMESTAMP()`
+	stmt := `SELECT id, title, content, expires, created_at FROM snippet WHERE id = ? AND expires > UTC_TIMESTAMP()`
 
 	row := model.DB.QueryRow(stmt, id)
 	snippet := &models.Snippet{}
