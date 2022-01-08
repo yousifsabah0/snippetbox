@@ -20,7 +20,7 @@ type Application struct {
 func main () {
 	// Get command line flags
 	addr := flag.String("addr", ":8080", "HTTP network address.")
-	dns := flag.String("dns", "stark:1538@/snippetbox?parserTime=true", "Mysql connection string.")
+	dns := flag.String("dns", "stark:1538@/snippetbox?parseTime=true", "Mysql connection string.")
 	flag.Parse()
 
 	// Create custom loggers
