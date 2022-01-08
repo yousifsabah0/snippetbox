@@ -12,4 +12,6 @@ type Snippet struct {
 	Title string
 	Content string
 	Expires time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
+
+	// "html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/yousifsabah0/snippetbox/pkg/models"
 )
 
 // Home page handler.
@@ -14,28 +18,38 @@ func (app *Application) home (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.FindLatest()
 	if err != nil {
-		// log.Fatal(err.Error())
-		// app.errorLogger.Println(err.Error())
-		// http.Error(w, "Internal server error.", http.StatusInternalServerError)
 		app.serverError(w, err)
 		return
 	}
-
-	err = ts.Execute(w, nil)
-	if err != nil {
-		// log.Fatal(err.Error())
-		// app.errorLogger.Println(err.Error())
-		// http.Error(w, "Internal server error.", http.StatusInternalServerError)
-		app.serverError(w, err)
+	
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	// files := []string{
+	// 	"./ui/html/home.page.tmpl",
+	// 	"./ui/html/base.layout.tmpl",
+	// 	"./ui/html/footer.partial.tmpl",
+	// }
+
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	// log.Fatal(err.Error())
+	// 	// app.errorLogger.Println(err.Error())
+	// 	// http.Error(w, "Internal server error.", http.StatusInternalServerError)
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+
+	// err = ts.Execute(w, nil)
+	// if err != nil {
+	// 	// log.Fatal(err.Error())
+	// 	// app.errorLogger.Println(err.Error())
+	// 	// http.Error(w, "Internal server error.", http.StatusInternalServerError)
+	// 	app.serverError(w, err)
+	// }
 
 	// w.Write([]byte("Hello, World."))
 }
@@ -48,7 +62,18 @@ func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Showing snippet with id %v", id)
+	// Find snippet
+	snippet, err := app.snippets.FindOne(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNotRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%v", snippet)
 }
 
 // Handler to create new snippets.
