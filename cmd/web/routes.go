@@ -23,7 +23,7 @@ func (app *Application) routes () http.Handler {
 	// return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 
 	middlewares := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	dynamicMiddlewares := alice.New(app.session.Enable)
+	dynamicMiddlewares := alice.New(app.session.Enable, noSurf)
 
 	mux := pat.New()
 
