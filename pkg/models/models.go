@@ -14,6 +14,7 @@ type Snippet struct {
 	Title string
 	Content string
 	Expires time.Time
+	User int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -23,6 +24,11 @@ type User struct {
 	Name string
 	Email string
 	Password string
+	Active bool
+	ActiveToken string
+	ActiveTokenExpire time.Time
+	PasswordResetToken string
+	PasswordResetTokenExpire time.Time
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
