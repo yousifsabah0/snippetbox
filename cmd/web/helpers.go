@@ -15,7 +15,7 @@ func (app *Application) addDefaultData (td *TemplateData, r *http.Request) *Temp
 
 	td.CurrentYear = time.Now().Year()
 	td.Flash = app.session.PopString(r, "flash")
-	td.isAuthenticated = app.isAuthenticated(r)
+	td.IsAuthenticated = app.isAuthenticated(r)
 	return td
 }
 

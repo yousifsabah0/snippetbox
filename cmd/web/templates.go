@@ -13,7 +13,7 @@ type TemplateData struct {
 	CurrentYear int
 	Flash string
 	Form *forms.Form
-	isAuthenticated bool
+	IsAuthenticated bool
 	Snippet *models.Snippet
 	Snippets []*models.Snippet
 }
