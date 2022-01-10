@@ -15,7 +15,7 @@ import (
 // =========================================
 
 // Home page handler.
-func (app *Application) home (w http.ResponseWriter, r *http.Request) {
+func (app *Application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
 		return
@@ -33,7 +33,7 @@ func (app *Application) home (w http.ResponseWriter, r *http.Request) {
 }
 
 // Handler to show specific snippet.
-func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
+func (app *Application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil && id < 1 {
 		app.notFound(w)
@@ -57,14 +57,14 @@ func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
 }
 
 // Handler to show new snippet form
-func (app *Application) createSnippetForm (w http.ResponseWriter, r *http.Request) {
+func (app *Application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", &TemplateData{
 		Form: forms.New(nil),
 	})
 }
 
 // Handler to create new snippets.
-func (app *Application) createSnippet (w http.ResponseWriter, r *http.Request) {
+func (app *Application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -99,21 +99,21 @@ func (app *Application) createSnippet (w http.ResponseWriter, r *http.Request) {
 // =========================================
 
 // Display register page
-func (app *Application) registerForm (w http.ResponseWriter, r *http.Request) {
+func (app *Application) registerForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "register.page.tmpl", &TemplateData{
 		Form: forms.New(nil),
 	})
 }
 
 // Display login page
-func (app *Application) loginForm (w http.ResponseWriter, r *http.Request) {
+func (app *Application) loginForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "login.page.tmpl", &TemplateData{
 		Form: forms.New(nil),
 	})
 }
 
 // Register endpoint
-func (app *Application) register (w http.ResponseWriter, r *http.Request) {
+func (app *Application) register(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -122,7 +122,7 @@ func (app *Application) register (w http.ResponseWriter, r *http.Request) {
 	form := forms.New(r.PostForm)
 
 	form.Required("name", "email", "password")
-	
+
 	if !form.Valid() {
 		app.render(w, r, "register.page.tmpl", &TemplateData{
 			Form: form,
@@ -147,7 +147,7 @@ func (app *Application) register (w http.ResponseWriter, r *http.Request) {
 }
 
 // Login endpoint
-func (app *Application) login (w http.ResponseWriter, r *http.Request) {
+func (app *Application) login(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -179,7 +179,7 @@ func (app *Application) login (w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/snippets/new", http.StatusSeeOther)
 }
 
-func (app *Application) logout (w http.ResponseWriter, r *http.Request) {
+func (app *Application) logout(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "authenticatedUserId")
 	app.session.Put(r, "flash", "You have been loggedout")
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)

@@ -10,16 +10,16 @@ import (
 )
 
 type TemplateData struct {
-	CSRFToken string
-	CurrentYear int
-	Flash string
-	Form *forms.Form
+	CSRFToken       string
+	CurrentYear     int
+	Flash           string
+	Form            *forms.Form
 	IsAuthenticated bool
-	Snippet *models.Snippet
-	Snippets []*models.Snippet
+	Snippet         *models.Snippet
+	Snippets        []*models.Snippet
 }
 
-func humanDate (t time.Time) string {
+func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
 }
 
@@ -27,7 +27,7 @@ var functions = template.FuncMap{
 	"humanDate": humanDate,
 }
 
-func newTemplateCache (dir string) (map[string]*template.Template, error) {
+func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
 	pages, err := filepath.Glob(filepath.Join(dir, "*page.tmpl"))

@@ -10,7 +10,7 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-func (app *Application) addDefaultData (td *TemplateData, r *http.Request) *TemplateData {
+func (app *Application) addDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 	if td == nil {
 		td = &TemplateData{}
 	}
@@ -22,11 +22,11 @@ func (app *Application) addDefaultData (td *TemplateData, r *http.Request) *Temp
 	return td
 }
 
-func (app *Application) isAuthenticated (r *http.Request) bool {
+func (app *Application) isAuthenticated(r *http.Request) bool {
 	return app.session.Exists(r, "authenticatedUserId")
 }
 
-func (app *Application) render (w http.ResponseWriter, r *http.Request, name string, td *TemplateData) {
+func (app *Application) render(w http.ResponseWriter, r *http.Request, name string, td *TemplateData) {
 	ts, ok := app.templateCache[name]
 	if !ok {
 		app.serverError(w, fmt.Errorf("template %s don't exists", name))
@@ -43,17 +43,17 @@ func (app *Application) render (w http.ResponseWriter, r *http.Request, name str
 	buf.WriteTo(w)
 }
 
-func (app *Application) serverError (w http.ResponseWriter, err error) {
+func (app *Application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s/n%s", err.Error(), debug.Stack())
 	app.errorLogger.Output(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-func (app *Application) clientError (w http.ResponseWriter, status int) {
+func (app *Application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *Application) notFound (w http.ResponseWriter) {
+func (app *Application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }

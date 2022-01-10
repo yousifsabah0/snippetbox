@@ -16,15 +16,15 @@ import (
 )
 
 type Application struct {
-	errorLogger *log.Logger
-	infoLogger *log.Logger
-	session *sessions.Session
-	snippets *mysql.SnippetModel
-	users *mysql.UserModel
+	errorLogger   *log.Logger
+	infoLogger    *log.Logger
+	session       *sessions.Session
+	snippets      *mysql.SnippetModel
+	users         *mysql.UserModel
 	templateCache map[string]*template.Template
 }
 
-func main () {
+func main() {
 	// Get command line flags
 	addr := flag.String("addr", ":8080", "HTTP network address.")
 	dns := flag.String("dns", "stark:1538@/snippetbox?parseTime=true", "Mysql connection string.")
@@ -56,27 +56,27 @@ func main () {
 
 	// Initialize new instance of Application struct
 	app := &Application{
-		errorLogger: errorLogger,
-		infoLogger: infoLogger,
-		session: session,
-		snippets: &mysql.SnippetModel{DB: db},
-		users: &mysql.UserModel{DB: db},
+		errorLogger:   errorLogger,
+		infoLogger:    infoLogger,
+		session:       session,
+		snippets:      &mysql.SnippetModel{DB: db},
+		users:         &mysql.UserModel{DB: db},
 		templateCache: templateCache,
 	}
 
 	tlsConfig := tls.Config{
 		PreferServerCipherSuites: true,
-		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
-	// Initialize new http.Server struct 
+	// Initialize new http.Server struct
 	srv := &http.Server{
-		Addr: *addr,
-		ErrorLog: errorLogger,
-		Handler: app.routes(),
-		TLSConfig: &tlsConfig,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         *addr,
+		ErrorLog:     errorLogger,
+		Handler:      app.routes(),
+		TLSConfig:    &tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
@@ -85,6 +85,6 @@ func main () {
 	errorLogger.Fatal(err)
 }
 
-func openDB (dns string) (*sql.DB, error) {
+func openDB(dns string) (*sql.DB, error) {
 	return sql.Open("mysql", dns)
 }

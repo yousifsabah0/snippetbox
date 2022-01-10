@@ -7,8 +7,8 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-func secureHeaders (next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+func secureHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Frame-Options", "deny")
 
@@ -16,17 +16,17 @@ func secureHeaders (next http.Handler) http.Handler {
 	})
 }
 
-func (app *Application) logRequest (next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+func (app *Application) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		app.infoLogger.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())
 
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (app *Application) recoverPanic (next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
-		defer func () {
+func (app *Application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
 				app.serverError(w, fmt.Errorf("%s", err))
@@ -37,8 +37,8 @@ func (app *Application) recoverPanic (next http.Handler) http.Handler {
 	})
 }
 
-func (app *Application) requireAuthentication (next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+func (app *Application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !app.isAuthenticated(r) {
 			http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 			return
@@ -49,12 +49,12 @@ func (app *Application) requireAuthentication (next http.Handler) http.Handler {
 	})
 }
 
-func noSurf (next http.Handler) http.Handler {
+func noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
-		Path: "/",
-		Secure: true,
+		Path:     "/",
+		Secure:   true,
 	})
 	return csrfHandler
 }

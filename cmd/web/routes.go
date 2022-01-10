@@ -7,7 +7,7 @@ import (
 	"github.com/justinas/alice"
 )
 
-func (app *Application) routes () http.Handler {
+func (app *Application) routes() http.Handler {
 	// // Initialize new servemux.
 	// mux := http.NewServeMux()
 

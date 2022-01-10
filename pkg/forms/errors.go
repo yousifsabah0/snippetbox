@@ -12,14 +12,14 @@ type Form struct {
 	Errors errors
 }
 
-func New (data url.Values) *Form {
+func New(data url.Values) *Form {
 	return &Form{
 		data,
 		errors(map[string][]string{}),
 	}
 }
 
-func (f *Form) Required (fields ...string) {
+func (f *Form) Required(fields ...string) {
 	for _, field := range fields {
 		value := f.Get(field)
 		if strings.TrimSpace(value) == "" {
@@ -28,7 +28,7 @@ func (f *Form) Required (fields ...string) {
 	}
 }
 
-func (f *Form) MaxLength (field string, d int) {
+func (f *Form) MaxLength(field string, d int) {
 	value := f.Get(field)
 	if value == "" {
 		return
@@ -39,7 +39,7 @@ func (f *Form) MaxLength (field string, d int) {
 	}
 }
 
-func (f *Form) PremittedValue (field string, opts ...string) {
+func (f *Form) PremittedValue(field string, opts ...string) {
 	value := f.Get(field)
 
 	if value == "" {
@@ -56,6 +56,6 @@ func (f *Form) PremittedValue (field string, opts ...string) {
 
 }
 
-func (f *Form) Valid () bool {
+func (f *Form) Valid() bool {
 	return len(f.Errors) == 0
 }
