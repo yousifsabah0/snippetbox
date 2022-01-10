@@ -8,13 +8,19 @@ import (
 	"time"
 )
 
-func (app *Application) addDefaultDate (td *TemplateData, r *http.Request) *TemplateData {
+func (app *Application) addDefaultData (td *TemplateData, r *http.Request) *TemplateData {
 	if td == nil {
 		td = &TemplateData{}
 	}
 
 	td.CurrentYear = time.Now().Year()
+	td.Flash = app.session.PopString(r, "flash")
+	td.isAuthenticated = app.isAuthenticated(r)
 	return td
+}
+
+func (app *Application) isAuthenticated (r *http.Request) bool {
+	return app.session.Exists(r, "authenticatedUserId")
 }
 
 func (app *Application) render (w http.ResponseWriter, r *http.Request, name string, td *TemplateData) {
@@ -26,7 +32,7 @@ func (app *Application) render (w http.ResponseWriter, r *http.Request, name str
 
 	buf := new(bytes.Buffer)
 
-	err := ts.Execute(buf, app.addDefaultDate(td, r))
+	err := ts.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
 		app.serverError(w, err)
 	}

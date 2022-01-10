@@ -23,16 +23,23 @@ func (app *Application) routes () http.Handler {
 	// return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 
 	middlewares := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+	dynamicMiddlewares := alice.New(app.session.Enable)
 
 	mux := pat.New()
 
-	mux.Get("/", http.HandlerFunc(app.home))
-	// mux.Get("/snippets/new", http.HandlerFunc(app.createSnippetForm))
-	mux.Post("/snippets/new", http.HandlerFunc(app.createSnippet))
-	
-	mux.Get("/snippets/:id", http.HandlerFunc(app.showSnippet))
+	mux.Get("/", dynamicMiddlewares.ThenFunc(app.home))
+	mux.Get("/snippets/new", dynamicMiddlewares.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
+	mux.Post("/snippets/new", dynamicMiddlewares.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
+	mux.Get("/snippets/:id", dynamicMiddlewares.ThenFunc(app.showSnippet))
 
-		// Handle static files
+	mux.Get("/users/register", dynamicMiddlewares.ThenFunc(app.registerForm))
+	mux.Get("/users/login", dynamicMiddlewares.ThenFunc(app.loginForm))
+
+	mux.Post("/users/register", dynamicMiddlewares.ThenFunc(app.register))
+	mux.Post("/users/login", dynamicMiddlewares.ThenFunc(app.login))
+	mux.Post("/users/logout", dynamicMiddlewares.Append(app.requireAuthentication).ThenFunc(app.logout))
+
+	// Handle static files
 	fileserver := http.FileServer(http.Dir("./ui/static/"))
 	mux.Get("/static/", http.StripPrefix("/static", fileserver))
 

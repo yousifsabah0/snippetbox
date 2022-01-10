@@ -6,8 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/yousifsabah0/snippetbox/pkg/forms"
 	"github.com/yousifsabah0/snippetbox/pkg/models"
 )
+
+// =========================================
+// Snippets handlers
+// =========================================
 
 // Home page handler.
 func (app *Application) home (w http.ResponseWriter, r *http.Request) {
@@ -25,42 +30,11 @@ func (app *Application) home (w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "home.page.tmpl", &TemplateData{
 		Snippets: snippets,
 	})
-	
-	// for _, snippet := range snippets {
-	// 	fmt.Fprintf(w, "%v\n", snippet)
-	// }
-
-	// data := &TemplateData{Snippets: snippets}
-
-	// files := []string{
-	// 	"./ui/html/home.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	// log.Fatal(err.Error())
-	// 	// app.errorLogger.Println(err.Error())
-	// 	// http.Error(w, "Internal server error.", http.StatusInternalServerError)
-	// 	app.serverError(w, err)
-	// 	return
-	// }
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	// log.Fatal(err.Error())
-	// 	// app.errorLogger.Println(err.Error())
-	// 	// http.Error(w, "Internal server error.", http.StatusInternalServerError)
-	// 	app.serverError(w, err)
-	// }
-
-	// w.Write([]byte("Hello, World."))
 }
 
 // Handler to show specific snippet.
 func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil && id < 1 {
 		app.notFound(w)
 		return
@@ -80,48 +54,133 @@ func (app *Application) showSnippet (w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", &TemplateData{
 		Snippet: snippet,
 	})
+}
 
-	// data := &TemplateData{Snippet: snippet}
-
-	// files := []string{
-	// 	"./ui/html/show.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",	
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
-	// fmt.Fprintf(w, "%v", snippet)
+// Handler to show new snippet form
+func (app *Application) createSnippetForm (w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "create.page.tmpl", &TemplateData{
+		Form: forms.New(nil),
+	})
 }
 
 // Handler to create new snippets.
 func (app *Application) createSnippet (w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		// http.Error(w, "Only 'POST' method allowed.", http.StatusMethodNotAllowed)
-		app.clientError(w, http.StatusMethodNotAllowed)
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	title := "Hiiii"
-	content := "hii with more words guysss."
-	expires := "7"
+	form := forms.New(r.PostForm)
 
-	id, err := app.snippets.Create(title, content, expires)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 50)
+	form.PremittedValue("expires", "365", "7", "1")
+
+	if !form.Valid() {
+		app.render(w, r, "create.page.tmpl", &TemplateData{
+			Form: form,
+		})
+		return
+	}
+
+	id, err := app.snippets.Create(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippets?id=%d", id), http.StatusSeeOther)
-	// w.Write([]byte("Creating new snippet."))
+	app.session.Put(r, "flash", "New snippet created.")
+	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", id), http.StatusSeeOther)
+}
+
+// =========================================
+// Users handlers
+// =========================================
+
+// Display register page
+func (app *Application) registerForm (w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "register.page.tmpl", &TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// Display login page
+func (app *Application) loginForm (w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "login.page.tmpl", &TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// Register endpoint
+func (app *Application) register (w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+	}
+
+	form := forms.New(r.PostForm)
+
+	form.Required("name", "email", "password")
+	
+	if !form.Valid() {
+		app.render(w, r, "register.page.tmpl", &TemplateData{
+			Form: form,
+		})
+	}
+
+	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.Errors.Add("email", "Address already exists")
+			app.render(w, r, "register.page.tmpl", &TemplateData{
+				Form: form,
+			})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "flash", "Account created. Go and login")
+	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
+}
+
+// Login endpoint
+func (app *Application) login (w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+	}
+
+	form := forms.New(r.PostForm)
+
+	form.Required("email", "password")
+	if !form.Valid() {
+		app.render(w, r, "login.page.tmpl", &TemplateData{
+			Form: form,
+		})
+	}
+
+	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.Errors.Add("generic", "Email or password is incorrect")
+			app.render(w, r, "login.page.tmpl", &TemplateData{
+				Form: form,
+			})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "authenticatedUserId", id)
+	http.Redirect(w, r, "/snippets/new", http.StatusSeeOther)
+}
+
+func (app *Application) logout (w http.ResponseWriter, r *http.Request) {
+	app.session.Remove(r, "authenticateUserId")
+	app.session.Put(r, "flash", "You have been loggedout")
+	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
