@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS snippet (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (user) REFERENCES users (users.id)
+  FOREIGN KEY (user) REFERENCES users (id)
 );
 
 CREATE INDEX idx_snippets_created ON snippet(created_at);
