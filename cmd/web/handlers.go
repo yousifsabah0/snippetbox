@@ -180,7 +180,7 @@ func (app *Application) login (w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) logout (w http.ResponseWriter, r *http.Request) {
-	app.session.Remove(r, "authenticateUserId")
+	app.session.Remove(r, "authenticatedUserId")
 	app.session.Put(r, "flash", "You have been loggedout")
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
